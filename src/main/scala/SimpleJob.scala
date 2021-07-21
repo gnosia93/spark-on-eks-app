@@ -1,5 +1,6 @@
 import java.util.Properties
 
+import com.twitter.chill.Base64.InputStream
 import org.apache.spark.scheduler.{SparkListener, SparkListenerApplicationEnd}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
@@ -7,42 +8,63 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object SimpleJob extends Serializable {
 
-  def main(args: Array[String]) = {
+  var HDFS_URL: String = null;          // source
+  var JDBC_URL: String = null;          // target
+  var spark: SparkSession = null;       // spark session
 
+  /*
+  // properties - https://okky.kr/article/38761
+  def readConfig() = {
+    val props = new Properties()
+    try {
+      // 클래스 패스로 부터 읽어올 경우 "/SimpleJob.properties" 로 표시
+      val is = SimpleJob.getClass.getClassLoader.getResourceAsStream("SimpleJob.properties")
+      props.load(is)
+      jdbcUrl = props.getProperty("jdbc-url")
+      hdfsUrl = props.getProperty("hdfs-url")
+    }
+    catch {
+      case ex: Exception => println("SimpleJob.properties loading error.")
+    }
+  }
+  */
+
+  def readParam(args: Array[String]) = {
+      HDFS_URL = args(0)
+      JDBC_URL = args(1)
+
+      println(s"source $HDFS_URL" )
+      println(s"target $JDBC_URL" )
+  }
+
+  def initSpark() = {
     /* RDD
       val conf = new SparkConf().setAppName("SimpleJob").setMaster("local")
       val sc = new SparkContext(conf)
     */
-
-    val spark = SparkSession.builder().appName("SimpleJob")
-      //    .config("spark.master", "spark://ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com:7077")
-          .config("spark.master", "local")
-          .config("driver-memory", "300m")
-          .config("executor-memory", "1g")
-          .getOrCreate()
+    spark = SparkSession.builder().appName("SimpleJob")
+      .config("spark.master", "local")
+      .getOrCreate()
 
     spark.sparkContext.addSparkListener(new SparkListener() {
       override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
         println("shutting down hook..")
       }
     })
+  }
 
-
+  def read() = {
     val df = spark.read.format("csv")
-      .load("hdfs://localhost:9000/tmp/spark-test.csv")
-    //  .load("hdfs://ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com:8020/tmp/airflow")
+      .load(HDFS_URL)
       .toDF("code", "message", "date")
 
+    df.count().intValue()
+  }
 
-    df.printSchema()
-    val count = df.count().intValue()
-
-    // pg_ctl -D /usr/local/var/postgres restart
-    // psql -h localhost -U airline -d airline_db
-    // create table tbl_airflow_dummy_cnt (cnt int);
-    // save count result to table
+  def save(count: Int) = {
+    // save to jdbc
     val schema = StructType( Array(
-        StructField("cnt", IntegerType, nullable = false)
+      StructField("cnt", IntegerType, nullable = false)
     ))
     val result = Seq(Row(count))
     val rdd = spark.sparkContext.parallelize(result)
@@ -53,14 +75,22 @@ object SimpleJob extends Serializable {
     props.put("password", "airline")
 
     countDF.write
-        .mode("append")
-        .jdbc("jdbc:postgresql://localhost:5432/airline_db", "tbl_airflow_dummy_cnt", props)
+      .mode("append")
+      .jdbc(JDBC_URL, "tbl_airflow_dummy_cnt", props)
+  }
 
+  def main(args: Array[String]) = {
+
+    readParam(args)
+    val spark = initSpark()
+    val count = read()
+    save(count)
   }
 }
 
+// pg_ctl -D /usr/local/var/postgres restart
+// psql -h localhost -U airline -d airline_db
+// create table tbl_airflow_dummy_cnt (cnt int);
+// save count result to table
 
-// https://spark.apache.org/docs/latest/running-on-yarn.html
-// https://jx2lee.github.io/hadoop-troubleshoot_hadoop_client/
-// https://blog.yannickjaquier.com/hadoop/setup-spark-and-intellij-on-windows-to-access-a-remote-hadoop-cluster.html
-// https://www.programmersought.com/article/69443764843/    이것인듯.
+
