@@ -98,6 +98,18 @@ airline_db=> select * from tbl_airflow_dummy_cnt;
 ```
 
 * yarn 모드로 실행하기
+
+[$YARN_CONF_DIR/yarn-site.xml]
+```
+<configuration>
+ <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com</value>
+    </property>
+</configuration>
+```
+
+[실행하기]
 ```
 ubuntu@ip-10-1-1-187:~/sparkapp$ spark-submit \
 --master yarn \
