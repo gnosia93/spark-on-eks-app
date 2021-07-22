@@ -1,7 +1,10 @@
-* sbt 사용법
-https://joswlv.github.io/2017/08/06/howtousesbt/
+## sbt 사용법 ##
+* https://joswlv.github.io/2017/08/06/howtousesbt/
 
-
+```
+$ cd sparkapp
+$ sbt clean compile package
+```
 
 ## jar 실행 파일 만들기 ##
 
