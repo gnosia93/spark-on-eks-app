@@ -66,7 +66,7 @@ libraryDependencies ++= Seq (
 ```
 ubuntu@ip-10-1-1-187:~/sparkapp$ spark-submit --master local \
 target/scala-2.12/sparkapp-assembly-0.1.jar \
-hdfs://ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com:8020/tmp/spark-test.csv \
+hdfs://ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com:8020/tmp/airflow/ \
 jdbc:postgresql://bigdata-postgres.cwhptybasok6.ap-northeast-2.rds.amazonaws.com:5432/airline_db
 
 ```
