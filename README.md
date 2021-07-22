@@ -34,3 +34,32 @@ Caused by: java.lang.ClassNotFoundException: org.apache.spark.sql.SparkSession
 [해결방법]
 
 * https://alvinalexander.com/scala/sbt-how-build-single-executable-jar-file-assembly/
+
+* sbt-assembly plugin 추가
+```
+$ vi project/assembly.sbt
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.6")
+```
+
+* build.sbt 에 provided scope 추가 (provided 는 실행시에 runtime 이 해당 라이브러리를 제공)
+```
+name := "sparkapp"
+
+version := "0.1"
+
+scalaVersion := "2.12.12"
+
+libraryDependencies ++= Seq (
+  "org.apache.spark" %% "spark-core" % "3.1.1" % "provided",
+  "org.apache.spark" %% "spark-sql" % "3.1.1" % "provided" ,
+  "org.postgresql" % "postgresql" % "42.2.23"
+
+)
+```
+
+
+## 실행하기 ##
+
+```
+ubuntu@ip-10-1-1-187:~/sparkapp$ spark-submit --master local target/scala-2.12/sparkapp-assembly-0.1.jar 1 2
+```
