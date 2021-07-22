@@ -60,6 +60,10 @@ libraryDependencies ++= Seq (
 )
 ```
 
+```
+$ sbt assembly
+```
+
 
 ## 실행하기 ##
 
