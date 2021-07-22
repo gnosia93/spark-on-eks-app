@@ -73,4 +73,25 @@ hdfs://ec2-13-125-199-100.ap-northeast-2.compute.amazonaws.com:8020/tmp/airflow/
 jdbc:postgresql://bigdata-postgres.cwhptybasok6.ap-northeast-2.rds.amazonaws.com:5432/airline_db 
 
 
+ubuntu@ip-10-1-1-187:~/sparkapp$ psql -h bigdata-postgres.cwhptybasok6.ap-northeast-2.rds.amazonaws.com -U airline -d airline_db
+Password for user airline:
+psql (12.7 (Ubuntu 12.7-0ubuntu0.20.04.1), server 13.3)
+WARNING: psql major version 12, server major version 13.
+         Some psql features might not work.
+SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+airline_db=> \d
+                List of relations
+ Schema |         Name          | Type  |  Owner
+--------+-----------------------+-------+---------
+ public | tbl_airflow_dummy     | table | airline
+ public | tbl_airflow_dummy_cnt | table | airline
+(2 rows)
+
+airline_db=> select * from tbl_airflow_dummy_cnt;
+    cnt
+-----------
+ 103968400
+(1 row)
 ```
