@@ -35,13 +35,13 @@ Caused by: java.lang.ClassNotFoundException: org.apache.spark.sql.SparkSession
 
 * https://alvinalexander.com/scala/sbt-how-build-single-executable-jar-file-assembly/
 
-* sbt-assembly plugin 추가
+(1) sbt-assembly plugin 추가
 ```
 $ vi project/assembly.sbt
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.6")
 ```
 
-* build.sbt 에 provided scope 추가 (provided 는 실행시에 runtime 이 해당 라이브러리를 제공)
+(2) build.sbt 에 provided scope 추가 (provided 는 실행시에 runtime 이 해당 라이브러리를 제공)
 ```
 name := "sparkapp"
 
